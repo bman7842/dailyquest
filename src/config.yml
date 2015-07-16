@@ -1,0 +1,4 @@
+quest_update_time_hours: 24
+error_message_format: '&c&lERROR> &7'
+alert_message_format: '&a&lALERT> &7'
+npcs:

@@ -1,0 +1,8 @@
+name: DailyQuest
+main: me.bman7842.dailyquest.main.Main
+version: 0.1
+author: bman7842
+description: DailyQuest plugin
+commands:
+  spawnquestnpc:
+    description: Spawns a quest NPC!
