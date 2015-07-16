@@ -25,10 +25,10 @@ public class Messages {
     public static String questToString() {
         String type = data.getQuestType(CurrentQuest.getCurrentSelectQuest());
 
-        if (type.toLowerCase().contains("material")) {
+        if (type.toLowerCase().contains("breakmaterial")) {
             String[] args = type.split(":");
 
-            return ("mine " + args[2] + "blocks of " + args[1] + " before the day is over!");
+            return ("mine " + args[2] + " blocks of " + args[1] + " before the day is over!");
         }
 
         return null;

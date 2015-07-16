@@ -37,6 +37,15 @@ public class questNPCInteract implements Listener {
                 && event.getRightClicked().isCustomNameVisible()
                 && data.getNPCs().contains(event.getRightClicked())) {
             event.setCancelled(true);
+
+            if (data.getPlayersWhoCompletedQuest().contains(p.getUniqueId())) {
+                p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
+                p.sendMessage(ChatColor.YELLOW + npc.getCustomName() + ":");
+                p.sendMessage(ChatColor.GRAY + "You have already completed today's quest, come back tomorrow for another one!");
+                p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
+                return;
+            }
+
             if (playersWithQuestComplete.contains(p.getUniqueId())) {
                 p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
                 p.sendMessage(ChatColor.YELLOW + npc.getCustomName() + ":");
@@ -47,69 +56,67 @@ public class questNPCInteract implements Listener {
                 p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
 
                 completeQuest(p);
+                return;
             }
 
-            if (data.getPlayersWhoCompletedQuest().contains(p.getUniqueId())) {
+            if (data.getPlayersInQuest().contains(p)) {
                 p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
                 p.sendMessage(ChatColor.YELLOW + npc.getCustomName() + ":");
-                p.sendMessage(ChatColor.GRAY + "You have already completed today's quest, come back tomorrow for another one!");
+                p.sendMessage(ChatColor.GRAY + "You have already started this quest, ");
+                p.sendMessage(Messages.questToString());
                 p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
             } else {
-                if (data.getPlayersInQuest().contains(p)) {
+                if (data.returnPlayersInteractingQuest().keySet().contains(p)) {
+                    String quest = CurrentQuest.getCurrentSelectQuest();
+                    Integer numOn = data.returnPlayersInteractingQuest().get(p);
+
+                    List<String> dialog = data.getQuestDialog(quest);
                     p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
                     p.sendMessage(ChatColor.YELLOW + npc.getCustomName() + ":");
-                    p.sendMessage(ChatColor.GRAY + "You have already started this quest, ");
-                    p.sendMessage(Messages.questToString());
-                    p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
-                } else {
-                    if (data.returnPlayersInteractingQuest().keySet().contains(p)) {
-                        String quest = CurrentQuest.getCurrentSelectQuest();
-                        Integer numOn = data.returnPlayersInteractingQuest().get(p);
 
-                        List<String> dialog = data.getQuestDialog(quest);
-                        p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
-                        p.sendMessage(ChatColor.YELLOW + npc.getCustomName() + ":");
-                        if (numOn == dialog.size()) {
-                            p.sendMessage("Quest Started: " + Messages.questToString());
-                            data.addPlayerInQuest(p);
-                            data.removePlayerInteractingQuest(p);
-                        } else {
-                            p.sendMessage(ChatColor.GRAY + dialog.get(numOn + 1));
-                        }
+                    if ((numOn+1) == dialog.size()) {
+                        p.sendMessage("Quest Started: " + Messages.questToString());
+                        data.addPlayerInQuest(p);
+                        data.removePlayerInteractingQuest(p);
                         p.sendMessage("");
-                        p.sendMessage("*right click me to continue*");
                         p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
                     } else {
-                        data.addPlayersInteractingQuest(p, 0);
-
-                        String quest = CurrentQuest.getCurrentSelectQuest();
-                        Bukkit.getLogger().info(quest);
-                        List<String> dialog = data.getQuestDialog(quest);
-                        Bukkit.getLogger().info(dialog.toString());
-                        p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
-                        p.sendMessage(ChatColor.YELLOW + npc.getCustomName() + ":");
-                        p.sendMessage(ChatColor.GRAY + dialog.get(0));
+                        p.sendMessage(ChatColor.GRAY + dialog.get(numOn + 1));
+                        data.addPlayersInteractingQuest(p, numOn +1);
                         p.sendMessage("");
                         p.sendMessage("*right click me to continue*");
                         p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
                     }
+                } else {
+                    data.addPlayersInteractingQuest(p, 0);
+
+                    String quest = CurrentQuest.getCurrentSelectQuest();
+                    List<String> dialog = data.getQuestDialog(quest);
+                    p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
+                    p.sendMessage(ChatColor.YELLOW + npc.getCustomName() + ":");
+                    p.sendMessage(ChatColor.GRAY + dialog.get(0));
+                    p.sendMessage("");
+                    p.sendMessage("*right click me to continue*");
+                    p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "=========================================");
                 }
             }
         }
     }
 
     public void completeQuest(Player p) {
-        if (CurrentQuest.getCurrentSelectQuestType().toLowerCase().equals("material")) {
+        if (CurrentQuest.getCurrentSelectQuestType().toLowerCase().equals("breakmaterial")) {
 
-            Integer num = 0;
-            for (ItemStack item : p.getInventory().getContents()) {
-                if (item.getType().equals(blockBreakEvent.getMaterial())) {
-                    ItemStack newitem = new ItemStack(item.getType(), item.getAmount() - blockBreakEvent.getAmount());
-                    p.getInventory().setItem(num, newitem);
-                    break;
-                }
-                num++;
-            }
+            //TODO: Implement this for take item method
+//            Integer num = 0;
+//            for (ItemStack item : p.getInventory().getContents()) {
+//                if (item.getType().equals(blockBreakEvent.getMaterial())) {
+//                    ItemStack newitem = new ItemStack(item.getType(), item.getAmount() - blockBreakEvent.getAmount());
+//                    p.getInventory().setItem(num, newitem);
+//                    break;
+//                }
+//                num++;
+//            }
+            data.addPlayerWhoCompletedQuest(p.getUniqueId());
         }
     }
 

@@ -3,5 +3,5 @@
      - 'Hello there, I need a little help with one small thing'
      - 'I want iron armor sooo bad but I need 1 more iron ingot!'
      - 'I need you to get me 1 IRON INGOT! Return back to me and right click when you have the iron ingot!'
-  type: material:iron_ingot:5
+  type: breakmaterial:sand:5
   reward: 100

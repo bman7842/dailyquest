@@ -29,7 +29,6 @@ public class Main extends JavaPlugin {
 
         loadData();
         loadQuests();
-        loadNPC();
 
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new blockBreakEvent(), this);
@@ -39,6 +38,9 @@ public class Main extends JavaPlugin {
         getCommand("spawnquestnpc").setExecutor(new spawnQuestNPC());
 
         CurrentQuest.setupCurrentQuest(this);
+        CurrentQuest.selectNewQuest();
+
+        loadNPC();
     }
 
     @Override
@@ -47,9 +49,7 @@ public class Main extends JavaPlugin {
     }
 
     public void loadData() {
-        ConfigManager.load(this, "config.yml");
-
-        FileConfiguration config = ConfigManager.get("config.yml");
+        FileConfiguration config = getConfig();
 
         try {
             data.setQuestWaitTime(config.getInt("quest_update_time_hours"));
@@ -71,13 +71,13 @@ public class Main extends JavaPlugin {
                 data.addQuestType(name, config.getString(name + ".type"));
             }
         } catch (Exception e) {
-            Bukkit.getLogger().info("Error with quests.yml, this is essiential for the plugin to function, disabling plugin!");
+            Bukkit.getLogger().info("Error with quests.yml, this is essential for the plugin to function, disabling plugin!");
             Bukkit.getPluginManager().disablePlugin(this);
         }
     }
 
     public void loadNPC() {
-        FileConfiguration config = ConfigManager.get("config.yml");
+        FileConfiguration config = getConfig();
 
         if (config.getConfigurationSection("npcs") != null) {
             for (String name : config.getConfigurationSection("npcs").getKeys(false)) {
@@ -90,19 +90,32 @@ public class Main extends JavaPlugin {
                 entity.setCustomName(ChatColor.translateAlternateColorCodes('&', name));
                 entity.setCustomNameVisible(true);
                 FreezeEntity.freeze(entity);
+
+                data.addNPC(entity);
+                Bukkit.getLogger().info(entity.getCustomName());
             }
         }
     }
 
     public void saveNPC() {
-        FileConfiguration config = ConfigManager.get("config.yml");
+        FileConfiguration config = getConfig();
 
         for (Entity entity : data.getNPCs()) {
             String sep = ":";
             Location l = entity.getLocation();
             String location = (l.getX() + sep + l.getY() + sep + l.getZ() + sep + l.getPitch() + sep + l.getYaw() + sep + l.getWorld().getName());
-            config.set("npcs." + entity.getCustomName() + ".location", location);
-
+            if (!config.contains("npcs." + entity.getCustomName()))
+            {
+                config.addDefault("npcs." + entity.getCustomName() + ".location", location);
+            } else {
+                config.set("npcs." + entity.getCustomName() + ".location", location);
+            }
+            config.options().copyDefaults(true);
+            saveConfig();
+            try {
+                config.save("config.yml");
+            } catch (Exception e) {}
+            Bukkit.getLogger().info("saved");
             if (!(entity.isDead())) {
                 entity.remove();
             }

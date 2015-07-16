@@ -1,7 +1,10 @@
 package me.bman7842.dailyquest.main.utils;
 
+import me.bman7842.dailyquest.main.events.blockBreakEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import java.text.SimpleDateFormat;
@@ -70,12 +73,23 @@ public class CurrentQuest {
         for (String name : namesEdited.keySet()) {
             if (num == rannum) {
                 currentSelectQuest = name;
+                enableQuestCheck(data.getQuestType(name));
                 break;
             }
             num++;
         }
         //TODO: Make method check for type etc.
-        currentSelectQuestType = "material";
+        currentSelectQuestType = "breakmaterial";
         data.resetPlayersWhoCompletedQuest();
+    }
+
+    private static void enableQuestCheck(String data) {
+        String[] args = data.split(":");
+        Bukkit.getLogger().info("boop");
+        Bukkit.getLogger().info(args[0]);
+        if (args[0].equalsIgnoreCase("breakmaterial")) {
+            Bukkit.getLogger().info("in it");
+            blockBreakEvent.setEventEnabled(true, Material.valueOf(args[1].toUpperCase()), Integer.parseInt(args[2]));
+        }
     }
 }
